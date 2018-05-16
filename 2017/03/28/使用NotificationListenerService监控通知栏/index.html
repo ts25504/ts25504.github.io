@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.2.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.2.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="介绍NotificationListenerService是Android API Level18新增加的一个服务，当系统通知栏有通知弹出，移除以及位置改变时，会调用这个服务相关的回调方法。因此，我们可以利用这个服务来监控系统通知栏的行为。 如何在App中注册NotificationListenerService，方法很简单，首先在AndroidManifest.xml中添加一个这样的服务： 12">
+<meta name="keywords" content="Android Notification">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用NotificationListenerService监控通知栏">
+<meta property="og:url" content="http://yoursite.com/2017/03/28/使用NotificationListenerService监控通知栏/index.html">
+<meta property="og:site_name" content="B LOG">
+<meta property="og:description" content="介绍NotificationListenerService是Android API Level18新增加的一个服务，当系统通知栏有通知弹出，移除以及位置改变时，会调用这个服务相关的回调方法。因此，我们可以利用这个服务来监控系统通知栏的行为。 如何在App中注册NotificationListenerService，方法很简单，首先在AndroidManifest.xml中添加一个这样的服务： 12">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-16T09:01:02.368Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用NotificationListenerService监控通知栏">
+<meta name="twitter:description" content="介绍NotificationListenerService是Android API Level18新增加的一个服务，当系统通知栏有通知弹出，移除以及位置改变时，会调用这个服务相关的回调方法。因此，我们可以利用这个服务来监控系统通知栏的行为。 如何在App中注册NotificationListenerService，方法很简单，首先在AndroidManifest.xml中添加一个这样的服务： 12">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="B LOG" type="application/atom+xml" />
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/03/28/使用NotificationListenerService监控通知栏/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>使用NotificationListenerService监控通知栏 | B LOG</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">B LOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />About</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Categories</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/28/使用NotificationListenerService监控通知栏/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="唐盛">
+      <meta itemprop="description" content="程序员，Popper，游戏玩家，足球爱好者">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="B LOG">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用NotificationListenerService监控通知栏
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-03-28 22:24:15" itemprop="dateCreated datePublished" datetime="2017-03-28T22:24:15+08:00">2017-03-28</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-05-16 17:01:02" itemprop="dateModified" datetime="2018-05-16T17:01:02+08:00">2018-05-16</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Android开发/" itemprop="url" rel="index"><span itemprop="name">Android开发</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017/03/28/使用NotificationListenerService监控通知栏/" class="leancloud_visitors" data-flag-title="使用NotificationListenerService监控通知栏">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon"
+            >
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>NotificationListenerService是Android API Level18新增加的一个服务，当系统通知栏有通知弹出，移除以及位置改变时，会调用这个服务相关的回调方法。因此，我们可以利用这个服务来监控系统通知栏的行为。</p>
+<p>如何在App中注册NotificationListenerService，方法很简单，首先在AndroidManifest.xml中添加一个这样的服务：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">service</span> <span class="attr">android:name</span>=<span class="string">".NotificationListener"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:label</span>=<span class="string">"@string/service_name"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:permission</span>=<span class="string">"android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">"android.service.notification.NotificationListenerService"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">service</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>注意的是服务需要申请<code>BIND_NOTIFICATION_LISTENER_SERVICE</code>权限也就是所谓的通知读取权限，并且在<code>intent-filter</code>中加上<code>SERVICE_INTERFACE</code>这个Action。然后创建一个名为<code>@stirng/service_name</code>的服务继承NotificationListenerService。这样在App启动后并且通知读取权限已开启的情况下，我们的NotificationListenerService就可以监控通知栏事件了。</p>
+<p>还有一个注意的地方在文档里面也说得很清楚了，除了<code>requestRebind(ComponentName)</code>以外，不应该在<code>onListenerConnected()</code>方法回调之前做任何操作。<br><a id="more"></a></p>
+<h2 id="启动流程"><a href="#启动流程" class="headerlink" title="启动流程"></a>启动流程</h2><p>首先，NotificationListenerService是由NotificationManagerService启动的。在用户开机后，Zygote进程fork出SystemService进程，NotificationManagerService在SystemService进程中初始化。<br>在API Level 23中，NotificationManagerService的<code>mListeners</code>成员通过调用<br><code>rebindServices()</code> -&gt; <code>registerService(final ComponentName name, final int userid)</code><br>完成bind NotificationListenerService。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// registerService(final ComponentName name, final int userid)中bind NotificationListenerService的源码</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span> (!mContext.bindServiceAsUser(intent,</span><br><span class="line">        <span class="keyword">new</span> ServiceConnection() &#123;</span><br><span class="line">            IInterface mService;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceConnected</span><span class="params">(ComponentName name, IBinder binder)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">boolean</span> added = <span class="keyword">false</span>;</span><br><span class="line">                ManagedServiceInfo info = <span class="keyword">null</span>;</span><br><span class="line">                <span class="keyword">synchronized</span> (mMutex) &#123;</span><br><span class="line">                    mServicesBinding.remove(servicesBindingTag);</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        mService = asInterface(binder);</span><br><span class="line">                        info = newServiceInfo(mService, name,</span><br><span class="line">                                userid, <span class="keyword">false</span> <span class="comment">/*isSystem*/</span>, <span class="keyword">this</span>, targetSdkVersion);</span><br><span class="line">                        binder.linkToDeath(info, <span class="number">0</span>);</span><br><span class="line">                        added = mServices.add(info);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">                        <span class="comment">// already dead</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (added) &#123;</span><br><span class="line">                    onServiceAdded(info);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceDisconnected</span><span class="params">(ComponentName name)</span> </span>&#123;</span><br><span class="line">                Slog.v(TAG, getCaption() + <span class="string">" connection lost: "</span> + name);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE,</span><br><span class="line">        <span class="keyword">new</span> UserHandle(userid)))</span><br><span class="line">&#123;</span><br><span class="line">    mServicesBinding.remove(servicesBindingTag);</span><br><span class="line">    Slog.w(TAG, <span class="string">"Unable to bind "</span> + getCaption() + <span class="string">" service: "</span> + intent);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>在<code>onServiceConnected(ComponentName name, IBinder binder)</code>中，bind成功后会回调<code>onServiceAdded(ManagedServiceInfo info)</code>方法，这里的<code>info</code>是对<code>binder</code>的简单封装。在这里面又会回调<code>listener.onListenerConnected(update)</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceAdded</span><span class="params">(ManagedServiceInfo info)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> INotificationListener listener = (INotificationListener) info.service;</span><br><span class="line">    <span class="keyword">final</span> NotificationRankingUpdate update;</span><br><span class="line">    <span class="keyword">synchronized</span> (mNotificationList) &#123;</span><br><span class="line">        updateNotificationGroupsDesiredLocked();</span><br><span class="line">        update = makeRankingUpdateLocked(info);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        listener.onListenerConnected(update);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">        <span class="comment">// we tried</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>listener是一个INotificationListener接口的对象。这个接口会通过IPC传递给NotificationManagerService。在NotificationListenerService的<code>onBind</code>方法中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mWrapper == <span class="keyword">null</span>) &#123;</span><br><span class="line">        mWrapper = <span class="keyword">new</span> INotificationListenerWrapper();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> mWrapper;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>到这里，就回到了最普通的bindService的流程了。</p>
+<h2 id="监控通知"><a href="#监控通知" class="headerlink" title="监控通知"></a>监控通知</h2><p>首先回到NotificationManager中。当我们发送一个通知栏时，需要调用<code>notify(int id, Notification notification)</code>这个方法。其中会调用NotificationManagerService的<code>enqueueNotificationWithTag</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    service.enqueueNotificationWithTag(pkg, mContext.getOpPackageName(), tag, id,</span><br><span class="line">            stripped, idOut, UserHandle.myUserId());</span><br><span class="line">    <span class="keyword">if</span> (id != idOut[<span class="number">0</span>]) &#123;</span><br><span class="line">        Log.w(TAG, <span class="string">"notify: id corrupted: sent "</span> + id + <span class="string">", got back "</span> + idOut[<span class="number">0</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后看一下NotificationManagerService做了些什么。<br><code>enqueueNotificationWithTag</code> -&gt; <code>enqueueNotificationInternal</code> -&gt; <code>notifyPostedLocked</code> -&gt; <code>notifyPosted</code>。<br>当我们来到<code>notifyPosted</code>方法中时，我们会看到</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">notifyPosted</span><span class="params">(<span class="keyword">final</span> ManagedServiceInfo info,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">final</span> StatusBarNotification sbn, NotificationRankingUpdate rankingUpdate)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> INotificationListener listener = (INotificationListener)info.service;</span><br><span class="line">    StatusBarNotificationHolder sbnHolder = <span class="keyword">new</span> StatusBarNotificationHolder(sbn);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        listener.onNotificationPosted(sbnHolder, rankingUpdate);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RemoteException ex) &#123;</span><br><span class="line">        Log.e(TAG, <span class="string">"unable to notify listener (posted): "</span> + listener, ex);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它调用了<code>listener.onNotificationPosted(sbnHolder, rankingUpdate)</code>。而这个<code>listener</code>接口的<code>onNotificationPosted</code>方法的实现就在NotificationListenerService中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">INotificationListenerWrapper</span> <span class="keyword">extends</span> <span class="title">INotificationListener</span>.<span class="title">Stub</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNotificationPosted</span><span class="params">(IStatusBarNotificationHolder sbnHolder,</span></span></span><br><span class="line"><span class="function"><span class="params">            NotificationRankingUpdate update)</span> </span>&#123;</span><br><span class="line">        StatusBarNotification sbn;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            sbn = sbnHolder.get();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">            Log.w(TAG, <span class="string">"onNotificationPosted: Error receiving StatusBarNotification"</span>, e);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Notification.Builder.rebuild(getContext(), sbn.getNotification());</span><br><span class="line">            <span class="comment">// convert icon metadata to legacy format for older clients</span></span><br><span class="line">            createLegacyIconExtras(sbn.getNotification());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">            <span class="comment">// drop corrupt notification</span></span><br><span class="line">            sbn = <span class="keyword">null</span>;</span><br><span class="line">            Log.w(TAG, <span class="string">"onNotificationPosted: can't rebuild notification from "</span> +</span><br><span class="line">                    sbn.getPackageName());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// protect subclass from concurrent modifications of (@link mNotificationKeys&#125;.</span></span><br><span class="line">        <span class="keyword">synchronized</span> (mWrapper) &#123;</span><br><span class="line">            applyUpdate(update);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (sbn != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    NotificationListenerService.<span class="keyword">this</span>.onNotificationPosted(sbn, mRankingMap);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="comment">// still pass along the ranking map, it may contain other information</span></span><br><span class="line">                    NotificationListenerService.<span class="keyword">this</span>.onNotificationRankingUpdate(mRankingMap);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">                Log.w(TAG, <span class="string">"Error running onNotificationPosted"</span>, t);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>这里调用了<code>NotificationListenerService.this.onNotificationPosted</code>。而它的实现就是我们创建的NotificationListenerService中重写的方法。也就是说，一个收到通知的消息最终传递到了我们的NotificationListenerService中。</p>
+<h2 id="获取通知信息"><a href="#获取通知信息" class="headerlink" title="获取通知信息"></a>获取通知信息</h2><p>NotificationListenerService有两个抽象的回调方法（API 21以上不是抽象方法了）需要我们实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">onNotificationPosted(StatusBarNotification sbn)</span><br><span class="line">onNotificationRemoved(StatusBarNotification sbn)</span><br></pre></td></tr></table></figure>
+<p>这两个方法分别在系统收到通知和移除通知的时候回调。<code>StatusBarNotification</code>这个类是对<code>Notification</code>类的封装，包含了<code>id</code>，<code>pkg</code>，<code>postTime</code>等非常有用的属性。</p>
+<p>如果我们想要获取更多关于当前收到或移除通知的信息的话，需要我们对Android Notification的机制有更多的了解。在<code>Notification</code>类中有一个名为<code>extras</code>的<code>Bundle</code>成员，它的注释是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Additional semantic data to be carried around with this Notification.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * The extras keys defined here are intended to capture the original inputs to &#123;<span class="doctag">@link</span> Builder&#125;</span></span><br><span class="line"><span class="comment"> * APIs, and are intended to be used by</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> android.service.notification.NotificationListenerService&#125; implementations to extract</span></span><br><span class="line"><span class="comment"> * detailed information from notification objects.</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+<p>这个extras内部存储了<code>Notification.Builder</code>在build通知过程中的属性，包括<code>title</code>, <code>content</code>, <code>largeIcon</code>, <code>smallIcon</code>等。而它可以用于获取NotificationListenerService回调方法中Notification的信息。我们可以通过这样的方式来得到这些信息：（注意：<code>extras</code>需要API Level 19以上）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sbn.getNotification().extras.get(Notification.EXTRA_TITLE)</span><br><span class="line">sbn.getNotification().extras.get(Notification.EXTRA_TEXT)</span><br><span class="line">sbn.getNotification().extras.get(Notification.EXTRA_LARGE_ICON)</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<p>然而，有一些用户自定义的通知，如果想要获取其中的文案，则不能用上面的方法。用户自定义的通知是使用了RemoteViews来自定义界面。我们如何能获取到RemoteViews里面控件的属性呢。</p>
+<h2 id="RemoteViews"><a href="#RemoteViews" class="headerlink" title="RemoteViews"></a>RemoteViews</h2><p>RemoteViews顾名思义是一种在远程绘制的View，它不在自己的进程绘制，而是通过IPC将RemoteViews发送到其他进程更新界面。RemoteViews的主要应用场景是Notification和AppWidget。在通知栏上应用的方式是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Notification notification = <span class="keyword">new</span> Notification();</span><br><span class="line">notification.icon = R.mipmap.ic_launcher;</span><br><span class="line">notification.tickerText = <span class="string">"hello notification"</span>;</span><br><span class="line">notification.when = System.currentTimeMillis();</span><br><span class="line">notification.flags = Notification.FLAG_AUTO_CANCEL;</span><br><span class="line"></span><br><span class="line">Intent intent = <span class="keyword">new</span> Intent(<span class="keyword">this</span>, RemoteViewsActivity.class);</span><br><span class="line">PendingIntent pendingIntent = PendingIntent.getActivity(<span class="keyword">this</span>, <span class="number">0</span>, intent, PendingIntent.FLAG_UPDATE_CURRENT);</span><br><span class="line"></span><br><span class="line">RemoteViews remoteViews = <span class="keyword">new</span> RemoteViews(getPackageName(), R.layout.layout_notification);</span><br><span class="line">remoteViews.setTextViewText(R.id.tv, <span class="string">"这是一个Test"</span>);</span><br><span class="line">remoteViews.setTextColor(R.id.tv, Color.parseColor(<span class="string">"#abcdef"</span>));</span><br><span class="line">remoteViews.setImageViewResource(R.id.iv, R.mipmap.ic_launcher);</span><br><span class="line">PendingIntent openActivity2Pending = PendingIntent.getActivity</span><br><span class="line">            (<span class="keyword">this</span>, <span class="number">0</span>, <span class="keyword">new</span> Intent(<span class="keyword">this</span>, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);<span class="comment">//设置RemoveViews点击后启动界面</span></span><br><span class="line">remoteViews.setOnClickPendingIntent(R.id.tv, openActivity2Pending);</span><br><span class="line"></span><br><span class="line">notification.contentView = remoteViews;</span><br><span class="line">notification.contentIntent = pendingIntent;</span><br><span class="line">NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);</span><br><span class="line">    manager.notify(<span class="number">2</span>, notification);</span><br></pre></td></tr></table></figure>
+<p>在调用<code>manager.notify(2, notification)</code>之后，NotificationManager通过Binder和SystemService进程中的NotificationManagerService通信，将RemoteViews传递过去。在SystemService进程中，RemoteViews通过之前一系列setXYZ操作添加的Actions一步一步地完成界面更新，有点类似于状态机日志，这样可以避免大量的IPC操作。而我们可以通过反射来获取当前Notification中RemoteViews的<code>mActions</code>成员，从中获取这个通知栏RemoteViews界面更新过程中需要设置的文案，字体颜色等信息。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">List actions;</span><br><span class="line">RemoteViews rv = sbn.getNotification().contentView;</span><br><span class="line"><span class="keyword">if</span> (rv == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    Field field = rv.getClass().getDeclaredField(<span class="string">"mActions"</span>);</span><br><span class="line">    field.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">    actions = field.get(rv);</span><br><span class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (Object action : actions) &#123;</span><br><span class="line">    <span class="comment">// 反射得到methodName，viewId和value...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然，对于没有经过setXYZ操作直接将文案，颜色等内容写在layout.xml中的RemoteViews，这个方法是行不通的。</p>
+<h2 id="一些细节"><a href="#一些细节" class="headerlink" title="一些细节"></a>一些细节</h2><ol>
+<li>在实际监控过程中，有时会遇到收到一个通知回调多次的现象。后来发现这些sbn的<code>postTime</code>是一样的。我们可以增加一个<code>LastPostTime</code>时间戳将这些postTime相同的通知过滤掉。</li>
+<li>由于是后台服务，如果单独在一个进程的话，很容易被系统在内存吃紧的时候杀死，这样我们的监控功能就会失效。如果可以将服务变成前台服务的话，存活的时间将会大大增长。</li>
+<li>系统在什么时候会触发rebind操作。查看<code>rebindServices()</code>的引用会发现在<code>ManagedServices</code>的<code>onPackageChanged</code>，<code>onUserSwitched</code>以及<code>ManagedServices.SettingsObserver</code>的<code>update</code>三处会rebind。也就是在应用安装卸载时，系统用户切换时以及<code>Settings.Secure.getString(getContentResolver(), ENABLED_NOTIFICATION_LISTENERS)</code>有变化时。</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android-Notification/" rel="tag"># Android Notification</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/19/Raft一致性算法/" rel="next" title="Raft一致性算法">
+                <i class="fa fa-chevron-left"></i> Raft一致性算法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/31/Activity各种情形的生命周期/" rel="prev" title="Activity各种情形的生命周期">
+                Activity各种情形的生命周期 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">唐盛</p>
+              <p class="site-description motion-element" itemprop="description">程序员，Popper，游戏玩家，足球爱好者</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/ts25504" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:ts25504@gmail.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://www.zhihu.com/people/tang-sheng-97" target="_blank" title="知乎"><i class="fa fa-fw fa-globe"></i>知乎</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://instagram.com/ts25504" target="_blank" title="Instagram"><i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动流程"><span class="nav-number">2.</span> <span class="nav-text">启动流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#监控通知"><span class="nav-number">3.</span> <span class="nav-text">监控通知</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取通知信息"><span class="nav-number">4.</span> <span class="nav-text">获取通知信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RemoteViews"><span class="nav-number">5.</span> <span class="nav-text">RemoteViews</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些细节"><span class="nav-number">6.</span> <span class="nav-text">一些细节</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">唐盛</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Gemini</a> v6.2.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv" title="Total Visitors">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="site-pv" title="Total Views">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.2.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.2.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.2.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.2.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.2.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.2.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.2.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("q9S0gETX6baOQ2BtqEopR3pA-gzGzoHsz", "idLA30pSaekmJCdwHbzlGOpz");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            
+            counter.save(null, {
+              success: function(counter) {
+                
+                  var $element = $(document.getElementById(url));
+                  $element.find('.leancloud-visitors-count').text(counter.get('time'));
+                
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            
+              var $element = $(document.getElementById(url));
+              $element.find('.leancloud-visitors-count').text('Counter not initialized! See more at console err msg.');
+              console.error('ATTENTION! LeanCloud counter has security bug, see here how to solve it: https://github.com/theme-next/hexo-leancloud-counter-security. \n But you also can use LeanCloud without security, by set \'security\' option to \'false\'.');
+            
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
