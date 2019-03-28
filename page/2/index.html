@@ -298,6 +298,194 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/10/16/Android网络请求的好搭档－Volley和Gson/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="唐盛">
+      <meta itemprop="description" content="程序员，Popper，游戏玩家，足球爱好者">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="B LOG">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/10/16/Android网络请求的好搭档－Volley和Gson/" itemprop="url">
+                  Android网络请求的好搭档－Volley和Gson
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-10-16 15:19:01" itemprop="dateCreated datePublished" datetime="2016-10-16T15:19:01+08:00">2016-10-16</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-05-16 17:01:02" itemprop="dateModified" datetime="2018-05-16T17:01:02+08:00">2018-05-16</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Android开发/" itemprop="url" rel="index"><span itemprop="name">Android开发</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2016/10/16/Android网络请求的好搭档－Volley和Gson/" class="leancloud_visitors" data-flag-title="Android网络请求的好搭档－Volley和Gson">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>最近做了一个模块需要在Android客户端做网络请求，调用服务端提供的REST API。由于开发时间紧，网络请求次数和接口个数都比较多，如果使用自带的HttpURLConnection和HttpClient加上Java自身提供的Json库开发效率会很低，而网上的开源库例如okhttp或Retrofit我都缺乏了解。为了求稳，便使用了Google官方开发的网络库Volley和Json解析库Gson，使用起来发现非常的顺手，跟服务端提供的API几乎无缝衔接.</p>
+<h2 id="Volley"><a href="#Volley" class="headerlink" title="Volley"></a>Volley</h2><p>首先Volley库的使用可以参考Android开发的官方文档Training中的<a href="https://developer.android.com/training/volley/index.html" target="_blank" rel="noopener">Transmitting Network Data Using Volley</a>这一章的内容。最开始只需了解如何send a request，cancel a request，custom request这些基本的操作。接下来文档中的Use a Singleton Pattern将RequestQueue封装成单例的思想以及文档中非常重要的一张图：<img src="/images/volley-request.png" alt=""></p>
+<p>都是值得好好学习的，可以了解到对于Volley最基本的封装以及在使用Volley库的过程中哪些代码运行在哪些线程的问题。</p>
+<h2 id="Gson"><a href="#Gson" class="headerlink" title="Gson"></a>Gson</h2><p>Gson是Google开发的将Json串和JavaBean相互转换的非常方便易用的库。Github地址在<a href="https://github.com/google/gson" target="_blank" rel="noopener">https://github.com/google/gson</a>。具体的使用方法只要阅读README中的user guide就能掌握了。具体的功能有Json串和JavaBean的相互转换，包括数组，嵌套类，并且可以自定义一些内容，例如控制哪些字段需要操作哪些不需要，空值的操作等等。Gson库我认为比较难的一点在于如何定义JavaBean中字段的类型，尤其是在有泛型和容器类的情况下。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/10/16/Android网络请求的好搭档－Volley和Gson/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/08/16/koans/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1262,7 +1450,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -1289,7 +1477,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">7</span>
+                      
+                    
+                    <span class="site-state-item-count">8</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -1328,7 +1518,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -1399,7 +1591,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2015 &mdash; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; 2015 &mdash; <span itemprop="copyrightYear">2019</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
